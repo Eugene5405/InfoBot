@@ -6,7 +6,6 @@ from typing import Dict, Any, Optional
 
 import httpx
 import pytz
-from timezonefinder import TimezoneFinder
 from telegram import (
     Update,
     ReplyKeyboardMarkup,
@@ -36,7 +35,6 @@ def load_user_data() -> Dict[int, Dict[str, Any]]:
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 raw = json.load(f)
-                # keys come as strings from JSON
                 return {int(k): v for k, v in raw.items()}
     except Exception as e:
         logging.error(f"Failed to load user data: {e}")
@@ -49,7 +47,6 @@ def save_user_data():
     except Exception as e:
         logging.error(f"Failed to save user data: {e}")
 
-# Persistent storage
 user_data: Dict[int, Dict[str, Any]] = load_user_data()
 
 # ==================== LANGUAGES ====================
@@ -62,8 +59,8 @@ LANGUAGES = {
     "fr": {"name": "Français", "flag": "🇫🇷"},
     "pt": {"name": "Português", "flag": "🇧🇷"},
     "tr": {"name": "Türkçe", "flag": "🇹🇷"},
-    "ar": {"name": "العربية", "flag": "🇸🇦"},
-    "zh": {"name": "中文", "flag": "🇨🇳"},
+    "sr": {"name": "Srpski", "flag": "🇷🇸"},
+    "be": {"name": "Беларуская", "flag": "🇧🇾"},
 }
 
 # ==================== TEXTS ====================
@@ -151,7 +148,7 @@ TEXTS = {
         "error": "❌ Something went wrong. Please try again later.",
         "lang_changed": "✅ Language changed!",
     },
-    "ru": {
+        "ru": {
         "choose_lang": "🌐 <b>Пожалуйста, выберите язык:</b>",
         "welcome": (
             "👋 <b>Привет! Добро пожаловать в бот Время и Погода!</b>\n\n"
@@ -483,7 +480,7 @@ TEXTS = {
         "error": "❌ Etwas ist schiefgelaufen. Bitte später erneut versuchen.",
         "lang_changed": "✅ Sprache geändert!",
     },
-    "fr": {
+        "fr": {
         "choose_lang": "🌐 <b>Veuillez choisir votre langue :</b>",
         "welcome": (
             "👋 <b>Bonjour ! Bienvenue sur le Bot Temps & Météo !</b>\n\n"
@@ -649,7 +646,7 @@ TEXTS = {
         "error": "❌ Algo deu errado. Tente novamente mais tarde.",
         "lang_changed": "✅ Idioma alterado!",
     },
-    "tr": {
+        "tr": {
         "choose_lang": "🌐 <b>Lütfen dilinizi seçin:</b>",
         "welcome": (
             "👋 <b>Merhaba! Zaman ve Hava Botuna hoş geldiniz!</b>\n\n"
@@ -732,756 +729,170 @@ TEXTS = {
         "error": "❌ Bir şeyler ters gitti. Lütfen daha sonra tekrar deneyin.",
         "lang_changed": "✅ Dil değiştirildi!",
     },
-    "ar": {
-        "choose_lang": "🌐 <b>الرجاء اختيار لغتك:</b>",
+    "sr": {
+        "choose_lang": "🌐 <b>Molimo izaberite jezik:</b>",
         "welcome": (
-            "👋 <b>مرحباً! أهلاً بك في بوت الوقت والطقس!</b>\n\n"
-            "🌍 أعرض الوقت الحالي والطقس لموقعك المحفوظ.\n"
-            "يمكنك أيضاً التحقق من التوقعات، المطر، جودة الهواء، "
-            "مؤشر الأشعة فوق البنفسجية، شروق وغروب الشمس، الرياح والتنبيهات.\n\n"
-            "📍 أولاً شارك موقعك باستخدام الزر أدناه "
-            "أو أرسل دبوس موقع على الخريطة.\n\n"
-            "بعد ذلك استخدم القائمة أو الأوامر."
+            "👋 <b>Zdravo! Dobrodošli u bot Vreme i Prognoza!</b>\n\n"
+            "🌍 Prikazujem trenutno vreme i vreme za sačuvanu lokaciju.\n"
+            "Takođe možete proveriti prognoze, kišu, kvalitet vazduha, UV indeks, "
+            "izlazak i zalazak sunca, vetar i upozorenja.\n\n"
+            "📍 Prvo podelite svoju lokaciju dugmetom ispod "
+            "ili pošaljite tačku na mapi.\n\n"
+            "Nakon toga koristite meni ili komande."
         ),
         "welcome_ready": (
-            "👋 <b>مرحباً! أهلاً بك في بوت الوقت والطقس!</b>\n\n"
-            "🌍 أعرض الوقت الحالي والطقس لموقعك المحفوظ.\n"
-            "يمكنك أيضاً التحقق من التوقعات، المطر، جودة الهواء، "
-            "مؤشر الأشعة فوق البنفسجية، شروق وغروب الشمس، الرياح والتنبيهات.\n\n"
-            "✅ موقعك محفوظ بالفعل.\n"
-            "استخدم القائمة أدناه أو أرسل أمراً."
+            "👋 <b>Zdravo! Dobrodošli u bot Vreme i Prognoza!</b>\n\n"
+            "🌍 Prikazujem trenutno vreme i vreme za sačuvanu lokaciju.\n"
+            "Takođe možete proveriti prognoze, kišu, kvalitet vazduha, UV indeks, "
+            "izlazak i zalazak sunca, vetar i upozorenja.\n\n"
+            "✅ Vaša lokacija je već sačuvana.\n"
+            "Koristite meni ispod ili pošaljite komandu."
         ),
         "help": (
-            "📋 <b>الأوامر المتاحة:</b>\n\n"
-            "/watch — الوقت الحالي\n"
-            "/weather — الطقس الحالي\n"
-            "/week — توقعات 7 أيام\n"
-            "/hourly — الـ 24 ساعة القادمة\n"
-            "/tomorrow — توقعات الغد\n"
-            "/rain — احتمالية المطر\n"
-            "/air — جودة الهواء\n"
-            "/uv — مؤشر الأشعة فوق البنفسجية\n"
-            "/sun — شروق وغروب الشمس\n"
-            "/wind — الرياح\n"
-            "/alerts — تنبيهات الطقس\n"
-            "/dst — التغيير التالي للساعة\n"
-            "/change_location — تغيير الموقع\n"
-            "/language — تغيير اللغة\n"
-            "/help — عرض هذه القائمة\n\n"
-            "أو استخدم الأزرار أدناه 👇"
+            "📋 <b>Dostupne komande:</b>\n\n"
+            "/watch — trenutno vreme\n"
+            "/weather — trenutna prognoza\n"
+            "/week — prognoza za 7 dana\n"
+            "/hourly — narednih 24 sata\n"
+            "/tomorrow — prognoza za sutra\n"
+            "/rain — verovatnoća kiše\n"
+            "/air — kvalitet vazduha\n"
+            "/uv — UV indeks\n"
+            "/sun — izlazak i zalazak sunca\n"
+            "/wind — vetar\n"
+            "/alerts — upozorenja\n"
+            "/dst — sledeća promena sata\n"
+            "/change_location — promeni lokaciju\n"
+            "/language — promeni jezik\n"
+            "/help — prikaži ovu listu\n\n"
+            "Ili jednostavno koristite dugmad ispod 👇"
         ),
-        "btn_change_loc": "📍 تغيير الموقع",
-        "btn_help": "❓ مساعدة",
-        "btn_time": "🕐 عرض الوقت",
-        "btn_share": "📌 مشاركة موقعي",
-        "btn_weather": "🌤 أوامر الطقس",
-        "btn_back": "⬅️ العودة للقائمة",
-        "btn_current": "🌡 الطقس الحالي",
-        "btn_week": "📅 توقعات 7 أيام",
-        "btn_hourly": "⏱ كل ساعة",
-        "btn_tomorrow": "📆 غداً",
-        "btn_rain": "🌧 توقعات المطر",
-        "btn_air": "🌬 جودة الهواء",
-        "btn_uv": "☀️ مؤشر UV",
-        "btn_sun": "🌅 أوقات الشمس",
-        "btn_wind": "💨 الرياح",
-        "btn_alerts": "⚠️ التنبيهات",
-        "ask_location": "📍 الرجاء مشاركة موقعك باستخدام الزر أدناه:",
-        "location_saved": "✅ تم حفظ الموقع! سأستخدمه للوقت والطقس.",
-        "no_location": "❌ لم تشارك موقعاً بعد.\nاستخدم زر «مشاركة موقعي».",
-        "current_time": "🕐 <b>الوقت الحالي في {tz}:</b>\n{time}",
-        "weather_title": "🌤 <b>الطقس في موقعك:</b>\nالمنطقة الزمنية: {tz}",
+        "btn_change_loc": "📍 Promeni lokaciju",
+        "btn_help": "❓ Pomoć",
+        "btn_time": "🕐 Prikaži vreme",
+        "btn_share": "📌 Podeli lokaciju",
+        "btn_weather": "🌤 Komande vremena",
+        "btn_back": "⬅️ Nazad u meni",
+        "btn_current": "🌡 Trenutno vreme",
+        "btn_week": "📅 Prognoza 7 dana",
+        "btn_hourly": "⏱ Po satu",
+        "btn_tomorrow": "📆 Sutra",
+        "btn_rain": "🌧 Prognoza kiše",
+        "btn_air": "🌬 Kvalitet vazduha",
+        "btn_uv": "☀️ UV indeks",
+        "btn_sun": "🌅 Izlazak i zalazak",
+        "btn_wind": "💨 Vetar",
+        "btn_alerts": "⚠️ Upozorenja",
+        "ask_location": "📍 Molimo podelite lokaciju dugmetom ispod:",
+        "location_saved": "✅ Lokacija sačuvana! Koristiću je za vreme i prognozu.",
+        "no_location": "❌ Još niste podelili lokaciju.\nPritisnite dugme «Podeli lokaciju».",
+        "current_time": "🕐 <b>Trenutno vreme u {tz}:</b>\n{time}",
+        "weather_title": "🌤 <b>Vreme na vašoj lokaciji:</b>\nVremenska zona: {tz}",
         "weather_body": (
             "{desc}\n"
-            "🌡 درجة الحرارة: {temp}°C\n"
-            "🤒 الإحساس: {feels}°C\n"
-            "💧 الرطوبة: {hum}%\n"
-            "💨 الرياح: {wind} كم/س"
+            "🌡 Temperatura: {temp}°C\n"
+            "🤒 Oseća se kao: {feels}°C\n"
+            "💧 Vlažnost: {hum}%\n"
+            "💨 Vetar: {wind} km/h"
         ),
-        "week_title": "📅 <b>توقعات 7 أيام:</b>\nالمنطقة الزمنية: {tz}",
-        "hourly_title": "⏱ <b>التوقعات كل ساعة (24س):</b>",
-        "tomorrow_title": "📆 <b>غداً في موقعك:</b>",
-        "rain_title": "🌧 <b>توقعات المطر لليوم:</b>",
-        "air_title": "🌬 <b>جودة الهواء:</b>",
-        "uv_title": "☀️ <b>مؤشر UV لليوم:</b>",
-        "sun_title": "🌅 <b>أوقات الشمس:</b>",
-        "wind_title": "💨 <b>الرياح:</b>",
-        "alerts_title": "⚠️ <b>تنبيهات الطقس:</b>",
-        "no_alerts": "✅ لا توجد تنبيهات مهمة لليوم.",
-        "dst_title": "🕒 <b>تغيير الساعة (التوقيت الصيفي)</b>",
-        "dst_next": "التغيير التالي للساعة في <b>{tz}</b>:\n📅 <b>{date}</b>\n⏰ من {old} → {new}\n\n{direction}",
-        "dst_none": "✅ لا يوجد تغيير للساعة في السنتين القادمتين لـ {tz}.\nقد لا يطبق هذا المنطقة الزمنية التوقيت الصيفي.",
-        "btn_dst": "🕒 تغيير الساعة",
-        "error": "❌ حدث خطأ ما. حاول مرة أخرى لاحقاً.",
-        "lang_changed": "✅ تم تغيير اللغة!",
+        "week_title": "📅 <b>Prognoza za 7 dana:</b>\nVremenska zona: {tz}",
+        "hourly_title": "⏱ <b>Prognoza po satu (24h):</b>",
+        "tomorrow_title": "📆 <b>Sutra na vašoj lokaciji:</b>",
+        "rain_title": "🌧 <b>Prognoza kiše za danas:</b>",
+        "air_title": "🌬 <b>Kvalitet vazduha:</b>",
+        "uv_title": "☀️ <b>UV indeks za danas:</b>",
+        "sun_title": "🌅 <b>Izlazak i zalazak sunca:</b>",
+        "wind_title": "💨 <b>Vetar:</b>",
+        "alerts_title": "⚠️ <b>Upozorenja o vremenu:</b>",
+        "no_alerts": "✅ Nema značajnih upozorenja za danas.",
+        "dst_title": "🕒 <b>Promena sata (letnje/zimsko vreme)</b>",
+        "dst_next": "Sledeća promena sata u <b>{tz}</b>:\n📅 <b>{date}</b>\n⏰ Sa {old} → {new}\n\n{direction}",
+        "dst_none": "✅ U naredne 2 godine nema promene sata za {tz}.\nOva vremenska zona možda ne koristi letnje vreme.",
+        "btn_dst": "🕒 Promena sata",
+        "error": "❌ Nešto je pošlo po zlu. Pokušajte kasnije.",
+        "lang_changed": "✅ Jezik promenjen!",
     },
-    "zh": {
-        "choose_lang": "🌐 <b>请选择您的语言：</b>",
+    "be": {
+        "choose_lang": "🌐 <b>Калі ласка, абярыце мову:</b>",
         "welcome": (
-            "👋 <b>你好！欢迎使用时间与天气机器人！</b>\n\n"
-            "🌍 我显示您保存位置的当前时间和天气。\n"
-            "您还可以查看预报、降雨、空气质量、紫外线指数、"
-            "日出日落、风力和天气预警。\n\n"
-            "📍 请先使用下方按钮分享您的位置，"
-            "或发送地图上的位置点。\n\n"
-            "之后使用菜单或命令。"
+            "👋 <b>Прывітанне! Сардэчна запрашаем у бот Час і Надвор'е!</b>\n\n"
+            "🌍 Я паказваю бягучы час і надвор'е для захаванай лакацыі.\n"
+            "Таксама можна глядзець прагнозы, дождж, якасць паветра, УФ-індэкс, "
+            "усход і захад сонца, вецер і папярэджанні.\n\n"
+            "📍 Спачатку падзяліцеся сваёй геалакацыяй кнопкай ніжэй "
+            "або дашліце кропку на карце.\n\n"
+            "Пасля гэтага выкарыстоўвайце меню або каманды."
         ),
         "welcome_ready": (
-            "👋 <b>你好！欢迎使用时间与天气机器人！</b>\n\n"
-            "🌍 我显示您保存位置的当前时间和天气。\n"
-            "您还可以查看预报、降雨、空气质量、紫外线指数、"
-            "日出日落、风力和天气预警。\n\n"
-            "✅ 您的位置已保存。\n"
-            "请使用下方菜单或发送命令。"
+            "👋 <b>Прывітанне! Сардэчна запрашаем у бот Час і Надвор'е!</b>\n\n"
+            "🌍 Я паказваю бягучы час і надвор'е для захаванай лакацыі.\n"
+            "Таксама можна глядзець прагнозы, дождж, якасць паветра, УФ-індэкс, "
+            "усход і захад сонца, вецер і папярэджанні.\n\n"
+            "✅ Ваша лакацыя ўжо захавана.\n"
+            "Выкарыстоўвайце меню ніжэй або дашліце каманду."
         ),
         "help": (
-            "📋 <b>可用命令：</b>\n\n"
-            "/watch — 当前时间\n"
-            "/weather — 当前天气\n"
-            "/week — 7天预报\n"
-            "/hourly — 未来24小时\n"
-            "/tomorrow — 明天的预报\n"
-            "/rain — 降雨概率\n"
-            "/air — 空气质量\n"
-            "/uv — 紫外线指数\n"
-            "/sun — 日出日落\n"
-            "/wind — 风力\n"
-            "/alerts — 天气预警\n"
-            "/dst — 下次时钟调整\n"
-            "/change_location — 更改位置\n"
-            "/language — 更改语言\n"
-            "/help — 显示此列表\n\n"
-            "或直接使用下方按钮 👇"
+            "📋 <b>Даступныя каманды:</b>\n\n"
+            "/watch — бягучы час\n"
+            "/weather — бягучае надвор'е\n"
+            "/week — прагноз на 7 дзён\n"
+            "/hourly — бліжэйшыя 24 гадзіны\n"
+            "/tomorrow — прагноз на заўтра\n"
+            "/rain — імавернасць дажджу\n"
+            "/air — якасць паветра\n"
+            "/uv — УФ-індэкс\n"
+            "/sun — усход і захад\n"
+            "/wind — вецер\n"
+            "/alerts — папярэджанні\n"
+            "/dst — наступны перавод гадзін\n"
+            "/change_location — змяніць лакацыю\n"
+            "/language — змяніць мову\n"
+            "/help — паказаць гэты спіс\n\n"
+            "Або проста выкарыстоўвайце кнопкі ніжэй 👇"
         ),
-        "btn_change_loc": "📍 更改位置",
-        "btn_help": "❓ 帮助",
-        "btn_time": "🕐 显示时间",
-        "btn_share": "📌 分享我的位置",
-        "btn_weather": "🌤 天气命令",
-        "btn_back": "⬅️ 返回主菜单",
-        "btn_current": "🌡 当前天气",
-        "btn_week": "📅 7天预报",
-        "btn_hourly": "⏱ 每小时",
-        "btn_tomorrow": "📆 明天",
-        "btn_rain": "🌧 降雨预报",
-        "btn_air": "🌬 空气质量",
-        "btn_uv": "☀️ 紫外线指数",
-        "btn_sun": "🌅 日出日落",
-        "btn_wind": "💨 风力",
-        "btn_alerts": "⚠️ 天气预警",
-        "ask_location": "📍 请使用下方按钮分享您的位置：",
-        "location_saved": "✅ 位置已保存！我将用它来显示时间和天气。",
-        "no_location": "❌ 您还没有分享位置。\n请使用「分享我的位置」按钮。",
-        "current_time": "🕐 <b>{tz} 的当前时间：</b>\n{time}",
-        "weather_title": "🌤 <b>您位置的天气：</b>\n时区：{tz}",
+        "btn_change_loc": "📍 Змяніць лакацыю",
+        "btn_help": "❓ Дапамога",
+        "btn_time": "🕐 Паказаць час",
+        "btn_share": "📌 Падзяліцца лакацыяй",
+        "btn_weather": "🌤 Каманды надвор'я",
+        "btn_back": "⬅️ Назад у меню",
+        "btn_current": "🌡 Бягучае надвор'е",
+        "btn_week": "📅 Прагноз на 7 дзён",
+        "btn_hourly": "⏱ Па гадзінах",
+        "btn_tomorrow": "📆 Заўтра",
+        "btn_rain": "🌧 Прагноз дажджу",
+        "btn_air": "🌬 Якасць паветра",
+        "btn_uv": "☀️ УФ-індэкс",
+        "btn_sun": "🌅 Усход і захад",
+        "btn_wind": "💨 Вецер",
+        "btn_alerts": "⚠️ Папярэджанні",
+        "ask_location": "📍 Калі ласка, падзяліцеся лакацыяй кнопкай ніжэй:",
+        "location_saved": "✅ Лакацыя захавана! Цяпер я буду выкарыстоўваць яе для часу і надвор'я.",
+        "no_location": "❌ Вы яшчэ не ўказалі лакацыю.\nНацісніце кнопку «Падзяліцца лакацыяй».",
+        "current_time": "🕐 <b>Бягучы час у {tz}:</b>\n{time}",
+        "weather_title": "🌤 <b>Надвор'е ў вашай лакацыі:</b>\nЧасавы пояс: {tz}",
         "weather_body": (
             "{desc}\n"
-            "🌡 温度：{temp}°C\n"
-            "🤒 体感温度：{feels}°C\n"
-            "💧 湿度：{hum}%\n"
-            "💨 风速：{wind} km/h"
+            "🌡 Тэмпература: {temp}°C\n"
+            "🤒 Адчуваецца як: {feels}°C\n"
+            "💧 Вільготнасць: {hum}%\n"
+            "💨 Вецер: {wind} км/г"
         ),
-        "week_title": "📅 <b>7天预报：</b>\n时区：{tz}",
-        "hourly_title": "⏱ <b>每小时预报（24小时）：</b>",
-        "tomorrow_title": "📆 <b>明天您位置的天气：</b>",
-        "rain_title": "🌧 <b>今天的降雨预报：</b>",
-        "air_title": "🌬 <b>空气质量：</b>",
-        "uv_title": "☀️ <b>今天的紫外线指数：</b>",
-        "sun_title": "🌅 <b>日出日落：</b>",
-        "wind_title": "💨 <b>风力：</b>",
-        "alerts_title": "⚠️ <b>天气预警：</b>",
-        "no_alerts": "✅ 今天没有重要预警。",
-        "dst_title": "🕒 <b>夏令时 / 冬令时切换</b>",
-        "dst_next": "<b>{tz}</b> 的下一次时钟调整：\n📅 <b>{date}</b>\n⏰ 从 {old} → {new}\n\n{direction}",
-        "dst_none": "✅ 未来两年内 {tz} 没有时钟调整。\n该时区可能不实行夏令时。",
-        "btn_dst": "🕒 夏令时切换",
-        "error": "❌ 出了点问题。请稍后再试。",
-        "lang_changed": "✅ 语言已更改！",
+        "week_title": "📅 <b>Прагноз на 7 дзён:</b>\nЧасавы пояс: {tz}",
+        "hourly_title": "⏱ <b>Прагноз па гадзінах (24г):</b>",
+        "tomorrow_title": "📆 <b>Заўтра ў вашай лакацыі:</b>",
+        "rain_title": "🌧 <b>Прагноз дажджу на сёння:</b>",
+        "air_title": "🌬 <b>Якасць паветра:</b>",
+        "uv_title": "☀️ <b>УФ-індэкс на сёння:</b>",
+        "sun_title": "🌅 <b>Усход і захад:</b>",
+        "wind_title": "💨 <b>Вецер:</b>",
+        "alerts_title": "⚠️ <b>Папярэджанні аб надвор'і:</b>",
+        "no_alerts": "✅ Значымых папярэджанняў на сёння няма.",
+        "dst_title": "🕒 <b>Перавод гадзін (летні/зімовы час)</b>",
+        "dst_next": "Наступны перавод гадзін у <b>{tz}</b>:\n📅 <b>{date}</b>\n⏰ З {old} → {new}\n\n{direction}",
+        "dst_none": "✅ У бліжэйшыя 2 гады пераводу гадзін у {tz} не будзе.\nУ гэтым часавым поясе летні час можа не выкарыстоўвацца.",
+        "btn_dst": "🕒 Перавод гадзін",
+        "error": "❌ Нешта пайшло не так. Паспрабуйце пазней.",
+        "lang_changed": "✅ Мова зменена!",
     },
 }
-
-# Weather code descriptions (WMO)
-WEATHER_CODES = {
-    0: {"en": "Clear sky", "ru": "Ясно", "uk": "Ясно", "es": "Cielo despejado", "de": "Klarer Himmel", "fr": "Ciel dégagé", "pt": "Céu limpo", "tr": "Açık gökyüzü", "ar": "سماء صافية", "zh": "晴朗"},
-    1: {"en": "Mainly clear", "ru": "Преимущественно ясно", "uk": "Переважно ясно", "es": "Mayormente despejado", "de": "Überwiegend klar", "fr": "Principalement dégagé", "pt": "Principalmente limpo", "tr": "Çoğunlukla açık", "ar": "صافٍ في الغالب", "zh": "大部晴朗"},
-    2: {"en": "Partly cloudy", "ru": "Переменная облачность", "uk": "Мінлива хмарність", "es": "Parcialmente nublado", "de": "Teilweise bewölkt", "fr": "Partiellement nuageux", "pt": "Parcialmente nublado", "tr": "Parçalı bulutlu", "ar": "غائم جزئياً", "zh": "局部多云"},
-    3: {"en": "Overcast", "ru": "Пасмурно", "uk": "Хмарно", "es": "Nublado", "de": "Bedeckt", "fr": "Couvert", "pt": "Nublado", "tr": "Kapalı", "ar": "غائم", "zh": "阴天"},
-    45: {"en": "Fog", "ru": "Туман", "uk": "Туман", "es": "Niebla", "de": "Nebel", "fr": "Brouillard", "pt": "Neblina", "tr": "Sis", "ar": "ضباب", "zh": "雾"},
-    48: {"en": "Depositing rime fog", "ru": "Изморозь", "uk": "Іній", "es": "Niebla con escarcha", "de": "Reifnebel", "fr": "Brouillard givrant", "pt": "Neblina com geada", "tr": "Kırağılı sis", "ar": "ضباب متجمد", "zh": "雾凇"},
-    51: {"en": "Light drizzle", "ru": "Лёгкая морось", "uk": "Легка мряка", "es": "Llovizna ligera", "de": "Leichter Nieselregen", "fr": "Bruine légère", "pt": "Garoa leve", "tr": "Hafif çiseleme", "ar": "رذاذ خفيف", "zh": "小毛毛雨"},
-    53: {"en": "Moderate drizzle", "ru": "Умеренная морось", "uk": "Помірна мряка", "es": "Llovizna moderada", "de": "Mäßiger Nieselregen", "fr": "Bruine modérée", "pt": "Garoa moderada", "tr": "Orta çiseleme", "ar": "رذاذ متوسط", "zh": "中等毛毛雨"},
-    55: {"en": "Dense drizzle", "ru": "Сильная морось", "uk": "Густа мряка", "es": "Llovizna densa", "de": "Dichter Nieselregen", "fr": "Bruine dense", "pt": "Garoa densa", "tr": "Yoğun çiseleme", "ar": "رذاذ كثيف", "zh": "大毛毛雨"},
-    61: {"en": "Slight rain", "ru": "Небольшой дождь", "uk": "Невеликий дощ", "es": "Lluvia ligera", "de": "Leichter Regen", "fr": "Pluie légère", "pt": "Chuva leve", "tr": "Hafif yağmur", "ar": "مطر خفيف", "zh": "小雨"},
-    63: {"en": "Moderate rain", "ru": "Умеренный дождь", "uk": "Помірний дощ", "es": "Lluvia moderada", "de": "Mäßiger Regen", "fr": "Pluie modérée", "pt": "Chuva moderada", "tr": "Orta yağmur", "ar": "مطر متوسط", "zh": "中雨"},
-    65: {"en": "Heavy rain", "ru": "Сильный дождь", "uk": "Сильний дощ", "es": "Lluvia fuerte", "de": "Starker Regen", "fr": "Pluie forte", "pt": "Chuva forte", "tr": "Şiddetli yağmur", "ar": "مطر غزير", "zh": "大雨"},
-    71: {"en": "Slight snow", "ru": "Небольшой снег", "uk": "Невеликий сніг", "es": "Nieve ligera", "de": "Leichter Schnee", "fr": "Neige légère", "pt": "Neve leve", "tr": "Hafif kar", "ar": "ثلج خفيف", "zh": "小雪"},
-    73: {"en": "Moderate snow", "ru": "Умеренный снег", "uk": "Помірний сніг", "es": "Nieve moderada", "de": "Mäßiger Schnee", "fr": "Neige modérée", "pt": "Neve moderada", "tr": "Orta kar", "ar": "ثلج متوسط", "zh": "中雪"},
-    75: {"en": "Heavy snow", "ru": "Сильный снег", "uk": "Сильний сніг", "es": "Nieve fuerte", "de": "Starker Schnee", "fr": "Neige forte", "pt": "Neve forte", "tr": "Yoğun kar", "ar": "ثلج كثيف", "zh": "大雪"},
-    80: {"en": "Slight rain showers", "ru": "Небольшие ливни", "uk": "Невеликі зливи", "es": "Chubascos ligeros", "de": "Leichte Regenschauer", "fr": "Averses légères", "pt": "Pancadas leves", "tr": "Hafif sağanak", "ar": "زخات مطر خفيفة", "zh": "小阵雨"},
-    81: {"en": "Moderate rain showers", "ru": "Умеренные ливни", "uk": "Помірні зливи", "es": "Chubascos moderados", "de": "Mäßige Regenschauer", "fr": "Averses modérées", "pt": "Pancadas moderadas", "tr": "Orta sağanak", "ar": "زخات مطر متوسطة", "zh": "中阵雨"},
-    82: {"en": "Violent rain showers", "ru": "Сильные ливни", "uk": "Сильні зливи", "es": "Chubascos fuertes", "de": "Heftige Regenschauer", "fr": "Averses violentes", "pt": "Pancadas fortes", "tr": "Şiddetli sağanak", "ar": "زخات مطر عنيفة", "zh": "强阵雨"},
-    95: {"en": "Thunderstorm", "ru": "Гроза", "uk": "Гроза", "es": "Tormenta", "de": "Gewitter", "fr": "Orage", "pt": "Tempestade", "tr": "Gök gürültülü fırtına", "ar": "عاصفة رعدية", "zh": "雷暴"},
-    96: {"en": "Thunderstorm with slight hail", "ru": "Гроза с небольшим градом", "uk": "Гроза з невеликим градом", "es": "Tormenta con granizo ligero", "de": "Gewitter mit leichtem Hagel", "fr": "Orage avec grêle légère", "pt": "Tempestade com granizo leve", "tr": "Hafif dolu ile fırtına", "ar": "عاصفة رعدية مع برد خفيف", "zh": "雷暴伴小冰雹"},
-    99: {"en": "Thunderstorm with heavy hail", "ru": "Гроза с сильным градом", "uk": "Гроза з сильним градом", "es": "Tormenta con granizo fuerte", "de": "Gewitter mit starkem Hagel", "fr": "Orage avec grêle forte", "pt": "Tempestade com granizo forte", "tr": "Yoğun dolu ile fırtına", "ar": "عاصفة رعدية مع برد كثيف", "zh": "雷暴伴大冰雹"},
-}
-
-tf = TimezoneFinder()
-
-# ==================== HELPERS ====================
-def get_lang(user_id: int) -> str:
-    return user_data.get(user_id, {}).get("lang", "en")
-
-def t(user_id: int, key: str) -> str:
-    lang = get_lang(user_id)
-    return TEXTS.get(lang, TEXTS["en"]).get(key, TEXTS["en"].get(key, key))
-
-def get_weather_desc(code: int, lang: str) -> str:
-    return WEATHER_CODES.get(code, {}).get(lang, WEATHER_CODES.get(code, {}).get("en", "Unknown"))
-
-def main_keyboard(user_id: int) -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        [
-            [t(user_id, "btn_change_loc"), t(user_id, "btn_help"), t(user_id, "btn_time")],
-            [t(user_id, "btn_share"), t(user_id, "btn_weather")],
-            [t(user_id, "btn_dst")],
-        ],
-        resize_keyboard=True,
-    )
-
-def weather_keyboard(user_id: int) -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        [
-            [t(user_id, "btn_current"), t(user_id, "btn_week")],
-            [t(user_id, "btn_hourly"), t(user_id, "btn_tomorrow")],
-            [t(user_id, "btn_rain"), t(user_id, "btn_air")],
-            [t(user_id, "btn_uv"), t(user_id, "btn_sun")],
-            [t(user_id, "btn_wind"), t(user_id, "btn_alerts")],
-            [t(user_id, "btn_back")],
-        ],
-        resize_keyboard=True,
-    )
-
-def lang_keyboard() -> InlineKeyboardMarkup:
-    buttons = []
-    row = []
-    for code, info in LANGUAGES.items():
-        row.append(InlineKeyboardButton(f"{info['flag']} {info['name']}", callback_data=f"lang_{code}"))
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
-    return InlineKeyboardMarkup(buttons)
-
-async def fetch_weather(lat: float, lon: float) -> Optional[dict]:
-    url = (
-        "https://api.open-meteo.com/v1/forecast"
-        f"?latitude={lat}&longitude={lon}"
-        "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m"
-        "&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m"
-        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max,wind_speed_10m_max,wind_direction_10m_dominant"
-        "&timezone=auto"
-        "&forecast_days=7"
-    )
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(url)
-            r.raise_for_status()
-            return r.json()
-    except Exception as e:
-        logging.error(f"Weather fetch error: {e}")
-        return None
-
-async def fetch_air(lat: float, lon: float) -> Optional[dict]:
-    url = (
-        "https://air-quality-api.open-meteo.com/v1/air-quality"
-        f"?latitude={lat}&longitude={lon}"
-        "&current=european_aqi,pm2_5,pm10,uv_index"
-        "&timezone=auto"
-    )
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(url)
-            r.raise_for_status()
-            return r.json()
-    except Exception as e:
-        logging.error(f"Air quality fetch error: {e}")
-        return None
-
-def get_user_location(user_id: int) -> Optional[tuple]:
-    data = user_data.get(user_id, {})
-    if "lat" in data and "lon" in data:
-        return data["lat"], data["lon"]
-    return None
-
-# ==================== HANDLERS ====================
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    if user_id not in user_data:
-        user_data[user_id] = {}
-    await update.message.reply_text(
-        t(user_id, "choose_lang"),
-        reply_markup=lang_keyboard(),
-        parse_mode="HTML",
-    )
-
-async def language_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    await update.message.reply_text(
-        t(user_id, "choose_lang"),
-        reply_markup=lang_keyboard(),
-        parse_mode="HTML",
-    )
-
-async def lang_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    user_id = query.from_user.id
-    lang_code = query.data.replace("lang_", "")
-    if user_id not in user_data:
-        user_data[user_id] = {}
-    user_data[user_id]["lang"] = lang_code
-    save_user_data()
-
-    has_loc = get_user_location(user_id) is not None
-    text = t(user_id, "welcome_ready") if has_loc else t(user_id, "welcome")
-    await query.edit_message_text(text, parse_mode="HTML")
-    await context.bot.send_message(
-        chat_id=query.message.chat_id,
-        text="👇",
-        reply_markup=main_keyboard(user_id),
-    )
-
-async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    await update.message.reply_text(t(user_id, "help"), parse_mode="HTML", reply_markup=main_keyboard(user_id))
-
-async def change_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    kb = ReplyKeyboardMarkup(
-        [[KeyboardButton(t(user_id, "btn_share"), request_location=True)]],
-        resize_keyboard=True,
-        one_time_keyboard=True,
-    )
-    await update.message.reply_text(t(user_id, "ask_location"), reply_markup=kb)
-
-async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = update.message.location
-    if user_id not in user_data:
-        user_data[user_id] = {}
-    user_data[user_id]["lat"] = loc.latitude
-    user_data[user_id]["lon"] = loc.longitude
-    tz_name = tf.timezone_at(lat=loc.latitude, lng=loc.longitude) or "UTC"
-    user_data[user_id]["tz"] = tz_name
-    save_user_data()
-    await update.message.reply_text(t(user_id, "location_saved"), reply_markup=main_keyboard(user_id))
-
-async def show_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    tz_name = user_data[user_id].get("tz", "UTC")
-    try:
-        tz = pytz.timezone(tz_name)
-        now = datetime.now(tz)
-        time_str = now.strftime("%A, %d %B %Y at %H:%M:%S %Z")
-    except Exception:
-        time_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-        tz_name = "UTC"
-    await update.message.reply_text(
-        t(user_id, "current_time").format(tz=tz_name, time=time_str),
-        parse_mode="HTML",
-        reply_markup=main_keyboard(user_id),
-    )
-
-async def current_weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    lang = get_lang(user_id)
-    cur = data["current"]
-    tz = data.get("timezone", user_data[user_id].get("tz", "UTC"))
-    desc = get_weather_desc(cur["weather_code"], lang)
-    text = t(user_id, "weather_title").format(tz=tz) + "\n\n" + t(user_id, "weather_body").format(
-        desc=desc,
-        temp=cur["temperature_2m"],
-        feels=cur["apparent_temperature"],
-        hum=cur["relative_humidity_2m"],
-        wind=cur["wind_speed_10m"],
-    )
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def week_forecast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    lang = get_lang(user_id)
-    daily = data["daily"]
-    tz = data.get("timezone", "")
-    lines = [t(user_id, "week_title").format(tz=tz), ""]
-    for i in range(min(7, len(daily["time"]))):
-        date = daily["time"][i]
-        code = daily["weather_code"][i]
-        tmax = daily["temperature_2m_max"][i]
-        tmin = daily["temperature_2m_min"][i]
-        rain = daily["precipitation_probability_max"][i]
-        desc = get_weather_desc(code, lang)
-        lines.append(f"<b>{date}</b>: {desc}, {tmin}°…{tmax}°C, rain {rain}%")
-    await update.message.reply_text("\n".join(lines), parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def hourly_forecast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    lang = get_lang(user_id)
-    hourly = data["hourly"]
-    lines = [t(user_id, "hourly_title"), ""]
-    now = datetime.utcnow()
-    count = 0
-    for i, tstr in enumerate(hourly["time"]):
-        if count >= 24:
-            break
-        try:
-            dt = datetime.fromisoformat(tstr)
-            if dt < now - timedelta(hours=1):
-                continue
-        except Exception:
-            continue
-        temp = hourly["temperature_2m"][i]
-        rain = hourly["precipitation_probability"][i]
-        code = hourly["weather_code"][i]
-        desc = get_weather_desc(code, lang)
-        lines.append(f"<b>{tstr[11:16]}</b>: {desc}, {temp}°C, rain {rain}%")
-        count += 1
-    await update.message.reply_text("\n".join(lines), parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def tomorrow_forecast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    lang = get_lang(user_id)
-    daily = data["daily"]
-    if len(daily["time"]) < 2:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=weather_keyboard(user_id))
-        return
-    i = 1
-    date = daily["time"][i]
-    code = daily["weather_code"][i]
-    tmax = daily["temperature_2m_max"][i]
-    tmin = daily["temperature_2m_min"][i]
-    rain = daily["precipitation_probability_max"][i]
-    desc = get_weather_desc(code, lang)
-    text = (
-        t(user_id, "tomorrow_title") + f"\n\n"
-        f"<b>{date}</b>\n"
-        f"{desc}\n"
-        f"🌡 {tmin}° … {tmax}°C\n"
-        f"🌧 Rain chance: {rain}%"
-    )
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def rain_forecast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    daily = data["daily"]
-    rain = daily["precipitation_probability_max"][0]
-    text = t(user_id, "rain_title") + f"\n\n🌧 Maximum chance: <b>{rain}%</b>"
-    if rain >= 60:
-        text += "\n⚠️ High chance of rain today!"
-    elif rain >= 30:
-        text += "\n🌦 Rain is possible."
-    else:
-        text += "\n☀️ Low chance of rain."
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def air_quality(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_air(*loc)
-    if not data or "current" not in data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=weather_keyboard(user_id))
-        return
-    cur = data["current"]
-    aqi = cur.get("european_aqi", "N/A")
-    pm25 = cur.get("pm2_5", "N/A")
-    pm10 = cur.get("pm10", "N/A")
-    text = (
-        t(user_id, "air_title") + f"\n\n"
-        f"European AQI: <b>{aqi}</b>\n"
-        f"PM2.5: {pm25} µg/m³\n"
-        f"PM10: {pm10} µg/m³"
-    )
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def uv_index(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    uv = data["daily"]["uv_index_max"][0]
-    level = "Low"
-    if uv >= 8:
-        level = "Very High"
-    elif uv >= 6:
-        level = "High"
-    elif uv >= 3:
-        level = "Moderate"
-    text = t(user_id, "uv_title") + f"\n\n☀️ Maximum UV index: <b>{uv}</b> ({level})"
-    if uv >= 3:
-        text += "\n🧴 Sun protection is recommended."
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def sun_times(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    sunrise = data["daily"]["sunrise"][0][11:16]
-    sunset = data["daily"]["sunset"][0][11:16]
-    tz = data.get("timezone", "")
-    text = t(user_id, "sun_title") + f"\n\n🌅 Sunrise: <b>{sunrise}</b>\n🌇 Sunset: <b>{sunset}</b>\nTimezone: {tz}"
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def wind_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    cur = data["current"]
-    daily = data["daily"]
-    text = (
-        t(user_id, "wind_title") + f"\n\n"
-        f"Now: <b>{cur['wind_speed_10m']} km/h</b>\n"
-        f"Today's max: {daily['wind_speed_10m_max'][0]} km/h\n"
-        f"Dominant direction: {daily['wind_direction_10m_dominant'][0]}°"
-    )
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def alerts(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-    data = await fetch_weather(*loc)
-    if not data:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-    rain = data["daily"]["precipitation_probability_max"][0]
-    code = data["daily"]["weather_code"][0]
-    text = t(user_id, "alerts_title") + "\n\n"
-    has_alert = False
-    if rain >= 70:
-        text += f"🌧 Heavy rain is possible ({rain}% chance).\n"
-        has_alert = True
-    if code in (95, 96, 99):
-        text += "⛈ Thunderstorm possible.\n"
-        has_alert = True
-    if code in (71, 73, 75):
-        text += "❄️ Snow expected.\n"
-        has_alert = True
-    if not has_alert:
-        text += t(user_id, "no_alerts")
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=weather_keyboard(user_id))
-
-async def dst_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    loc = get_user_location(user_id)
-    if not loc:
-        await update.message.reply_text(t(user_id, "no_location"), reply_markup=main_keyboard(user_id))
-        return
-
-    tz_name = user_data[user_id].get("tz", "UTC")
-    try:
-        tz = pytz.timezone(tz_name)
-    except Exception:
-        await update.message.reply_text(t(user_id, "error"), reply_markup=main_keyboard(user_id))
-        return
-
-    now = datetime.now(tz)
-    # Look for next DST transition in the next ~2 years
-    next_transition = None
-    try:
-        # pytz transition info
-        transitions = getattr(tz, "_utc_transition_times", None)
-        if transitions:
-            for ut in transitions:
-                if ut.tzinfo is None:
-                    ut = pytz.UTC.localize(ut)
-                local_ut = ut.astimezone(tz)
-                if local_ut > now:
-                    # Find the offset change
-                    before = (local_ut - timedelta(hours=1)).astimezone(tz)
-                    after = local_ut
-                    old_offset = before.strftime("%z")
-                    new_offset = after.strftime("%z")
-                    old_str = f"{before.strftime('%H:%M')} (UTC{old_offset})"
-                    new_str = f"{after.strftime('%H:%M')} (UTC{new_offset})"
-                    direction = "➡️ Clocks go FORWARD (spring)" if after.utcoffset() > before.utcoffset() else "⬅️ Clocks go BACK (autumn)"
-                    # Localize direction by language roughly
-                    lang = get_lang(user_id)
-                    if lang == "ru":
-                        direction = "➡️ Часы переводят ВПЕРЁД (весна)" if after.utcoffset() > before.utcoffset() else "⬅️ Часы переводят НАЗАД (осень)"
-                    elif lang == "uk":
-                        direction = "➡️ Годинники переводять ВПЕРЕД (весна)" if after.utcoffset() > before.utcoffset() else "⬅️ Годинники переводять НАЗАД (осінь)"
-                    next_transition = {
-                        "date": local_ut.strftime("%A, %d %B %Y"),
-                        "old": old_str,
-                        "new": new_str,
-                        "direction": direction,
-                    }
-                    break
-    except Exception as e:
-        logging.error(f"DST calculation error: {e}")
-
-    if next_transition:
-        text = t(user_id, "dst_title") + "\n\n" + t(user_id, "dst_next").format(
-            tz=tz_name,
-            date=next_transition["date"],
-            old=next_transition["old"],
-            new=next_transition["new"],
-            direction=next_transition["direction"],
-        )
-    else:
-        text = t(user_id, "dst_title") + "\n\n" + t(user_id, "dst_none").format(tz=tz_name)
-
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=main_keyboard(user_id))
-
-async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    text = update.message.text
-
-    # Main menu buttons
-    if text == t(user_id, "btn_change_loc"):
-        await change_location(update, context)
-    elif text == t(user_id, "btn_help"):
-        await help_cmd(update, context)
-    elif text == t(user_id, "btn_time"):
-        await show_time(update, context)
-    elif text == t(user_id, "btn_share"):
-        await change_location(update, context)
-    elif text == t(user_id, "btn_weather"):
-        await update.message.reply_text("🌤", reply_markup=weather_keyboard(user_id))
-    elif text == t(user_id, "btn_dst"):
-        await dst_info(update, context)
-    elif text == t(user_id, "btn_back"):
-        await update.message.reply_text("🏠", reply_markup=main_keyboard(user_id))
-    # Weather buttons
-    elif text == t(user_id, "btn_current"):
-        await current_weather(update, context)
-    elif text == t(user_id, "btn_week"):
-        await week_forecast(update, context)
-    elif text == t(user_id, "btn_hourly"):
-        await hourly_forecast(update, context)
-    elif text == t(user_id, "btn_tomorrow"):
-        await tomorrow_forecast(update, context)
-    elif text == t(user_id, "btn_rain"):
-        await rain_forecast(update, context)
-    elif text == t(user_id, "btn_air"):
-        await air_quality(update, context)
-    elif text == t(user_id, "btn_uv"):
-        await uv_index(update, context)
-    elif text == t(user_id, "btn_sun"):
-        await sun_times(update, context)
-    elif text == t(user_id, "btn_wind"):
-        await wind_info(update, context)
-    elif text == t(user_id, "btn_alerts"):
-        await alerts(update, context)
-    else:
-        await update.message.reply_text(t(user_id, "help"), parse_mode="HTML", reply_markup=main_keyboard(user_id))
-
-def main():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-    app = Application.builder().token(TOKEN).build()
-
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_cmd))
-    app.add_handler(CommandHandler("language", language_cmd))
-    app.add_handler(CommandHandler("watch", show_time))
-    app.add_handler(CommandHandler("weather", current_weather))
-    app.add_handler(CommandHandler("wether", current_weather))  # typo support
-    app.add_handler(CommandHandler("week", week_forecast))
-    app.add_handler(CommandHandler("weekwether", week_forecast))
-    app.add_handler(CommandHandler("hourly", hourly_forecast))
-    app.add_handler(CommandHandler("tomorrow", tomorrow_forecast))
-    app.add_handler(CommandHandler("rain", rain_forecast))
-    app.add_handler(CommandHandler("air", air_quality))
-    app.add_handler(CommandHandler("uv", uv_index))
-    app.add_handler(CommandHandler("sun", sun_times))
-    app.add_handler(CommandHandler("wind", wind_info))
-    app.add_handler(CommandHandler("alerts", alerts))
-    app.add_handler(CommandHandler("dst", dst_info))
-    app.add_handler(CommandHandler("change_location", change_location))
-
-    app.add_handler(CallbackQueryHandler(lang_callback, pattern="^lang_"))
-    app.add_handler(MessageHandler(filters.LOCATION, location_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler))
-
-    # For Render: use webhook if RENDER_EXTERNAL_URL is set, otherwise polling
-    render_url = os.environ.get("RENDER_EXTERNAL_URL")
-    if render_url:
-        port = int(os.environ.get("PORT", 10000))
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=port,
-            url_path=TOKEN,
-            webhook_url=f"{render_url}/{TOKEN}",
-        )
-    else:
-        app.run_polling(allowed_updates=Update.ALL_TYPES)
-
-if __name__ == "__main__":
-    main()
